@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div style="height: 100vh; width: 100vw; text-align: center;">
+        <div style="height: 80vh; width: 50vw; margin-left: 25%;">
+            <canvas id="myChart" style="border:1px solid #d3d3d3; margin-top: 15%; padding: 8px 12px 8px 12px; background-color: aliceblue;">
+                Your browser does not support the HTML canvas tag.</canvas>
+                <div style="text-align: center; padding-top: 0px; margin-top: 20px;">
+                    <button id="play-btn" title="Play" style="background-color: white; border: none; font-size: 30px;"> <i class="fa fa-play-circle fa-lg"></i></button>
+                    <button id="pause-btn" title="Pause" style="background-color: white; border: none; font-size: 25px;"><i class="fa fa-pause fa-lg"></i></button>
+                </div>
+            </div>
+      
+    </div>
+
+
+
+<script>
+
+document.getElementById('pause-btn').style.visibility="hidden"
+this.play = 0;
+this.current = 0;
+var arr = [];
+var xValues = [];
+var yValues = [];
+//var yValues = [5, 4, 9, 2, 1, 3, -3,5, 4, -9, 2, 1, 3, -3,5, -4, 9, 2, 1, 3, -3,5, -4, 9, 2, -1, 3, -3, -1,4, 3, -3,5, 4, -9, 2, 1, 3, -3,5, -4, 9, 2, 1, 3, -3,5, -4, 9, 2, -1, 3,,4, 3, -3,5, 4, -9, 2, 1, 3];
+var barColors = [];
+
+for(let j=0; j<85; j++) {
+  var rnum =  Math.floor(Math.random() * 11) - 5;       // returns a random integer from 0 to 10
+  if(rnum==0){
+      rnum=1;
+  }
+  else if(rnum>5){
+      rnum=rnum-5;
+  }
+  this.yValues[j] = rnum;
+}
+
+for(let i=0; i<this.yValues.length; i++) {
+   this.barColors[i] = 'gray';
+   this.xValues[i] = ""; 
+}
+console.log("Bar col: ", this.barColors);
+ 
+
+var chart = new Chart("myChart", {
+  type: "bar",
+  data: {
+    labels: xValues,
+    datasets: [{
+      backgroundColor: barColors,
+      data: yValues
+    }]
+  },
+  options: {
+    legend: {display: false},
+    title: {
+      display: false,
+    
+    },
+    scales: {
+    yAxes: [{
+        display: false,
+        gridLines: {
+            display: false
+        }
+    }],
+    xAxes: [{
+        barPercentage: 0.90,
+      categoryPercentage: 1.0,
+        display: false,
+        gridLines: {
+            display: false
+        }
+    }]
+  },
+  tooltips:{
+      enabled: false
+  }
+  }
+});
+
+
+this.onPlay = this.onPlay.bind(this);
+this.onPause = this.onPause.bind(this);
+this.handleClick = this.handleClick.bind(this);
+this.handlePlay = this.handlePlay.bind(this);
+this.getPlayState = this.getPlayState.bind(this);
+this.setPlayState = this.setPlayState.bind(this);
+this.getCurrentState = this.getCurrentState.bind(this);
+this.setCurrentState = this.setCurrentState.bind(this);
+
+document.getElementById('play-btn').addEventListener("click", handlePlay); 
+
+document.getElementById('pause-btn').addEventListener("click", onPause);
+
+document.getElementById('myChart').addEventListener('click', handleClick);
+
+const timer = ms => new Promise(res => setTimeout(res, ms));
+
+async function onPlay(){
+    console.log('play btn clicked, playing from:', this.getCurrentState());
+    while(getCurrentState() < yValues.length){
+        if(!this.getPlayState()) break;
+        chart.data.datasets[0].backgroundColor[getCurrentState()] = 'salmon'; 
+        chart.update();
+        
+        await timer(800);
+
+        setCurrentState(getCurrentState() + 1);
+        console.log("this.current:", this.getCurrentState());
+    }
+}
+
+function getPlayState(){
+    console.log("Current play state:", this.play);
+    return this.play;
+}
+
+function setPlayState(newState){
+    this.play = newState;
+}
+
+function getCurrentState(){
+    console.log("Current idx state:", this.current);
+    return this.current;
+}
+
+function setCurrentState(newState){
+    this.current = newState;
+}
+
+function handlePlay(){
+    this.setPlayState(1);
+    onPlay();
+     document.getElementById('play-btn').style.visibility="hidden";
+     document.getElementById('pause-btn').style.visibility="visible";
+   
+}
+
+
+function onPause(){
+    console.log("Pause btn clicked");
+    this.setPlayState(0);
+     document.getElementById('pause-btn').style.visibility="hidden";
+     document.getElementById('play-btn').style.visibility="visible";
+
+}
+
+function handleClick(evt)
+{
+    let wasPlaying = this.getPlayState();
+    if(wasPlaying) this.onPause();
+    var activeElement = chart.getElementAtEvent(evt);
+    console.log("Act ele: ", activeElement);
+    var clickedIdx = activeElement[0]._index;
+    console.log(clickedIdx);
+    
+    let curr_idx = this.getCurrentState();
+    if(curr_idx < clickedIdx){
+        while(curr_idx <= clickedIdx){
+            chart.data.datasets[0].backgroundColor[curr_idx] = 'salmon'; 
+            curr_idx++;
+        }
+        chart.update();
+    }
+    else if(curr_idx > clickedIdx){
+        while(curr_idx > clickedIdx){
+            chart.data.datasets[0].backgroundColor[curr_idx] = 'grey';
+            curr_idx--; 
+        }
+        chart.update();
+    }
+    setCurrentState(clickedIdx);
+    if(wasPlaying) setPlayState(1);
+}
+
+</script>
+
+</body>
+</html>
