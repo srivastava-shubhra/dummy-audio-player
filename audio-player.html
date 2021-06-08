@@ -16,8 +16,8 @@
                       </audio> 
                 </div>
                 <div style="text-align: center; padding-top: 0px; margin-top: 20px;">
-                    <button id="play-btn" title="Play" style="background-color: white; border: none; font-size: 30px;"> <i class="fa fa-play-circle fa-lg"></i></button>
-                    <button id="pause-btn" title="Pause" style="background-color: white; border: none; font-size: 25px;"><i class="fa fa-pause fa-lg"></i></button>
+                    <button id="play-btn" title="Play"  style="background-color: white; border: none; font-size: 30px;"> <i class="fa fa-play-circle fa-lg"></i></button>
+                   <button id="pause-btn" title="Pause" style="background-color: white; border: none; font-size: 25px;"><i class="fa fa-pause fa-lg"></i></button>
                 </div>
             </div>
       
@@ -50,17 +50,17 @@ for(let j=0; j<100; j++) {
 }
 
 for(let i=0; i<this.yValues.length; i++) {
-   this.barColors[i] = 'gray';
+   this.barColors[i] =  'rgb(0, 150, 255)';
    this.xValues[i] = ""; 
 }
 
 var chart = new Chart("myChart", {
-  type: "bar",
+  type: "bar", //bar
   data: {
     labels: xValues,
     datasets: [{
       backgroundColor: barColors,
-      data: yValues
+      data: yValues,
     }]
   },
   options: {
@@ -85,9 +85,15 @@ var chart = new Chart("myChart", {
         }
     }]
   },
-  tooltips:{
-      enabled: false
-  }
+//   tooltips:{
+//       enabled: false
+tooltips: {
+        callbacks: {
+            label: function(tooltipItem) {
+                return "Play audio at this instance";
+            }
+        }
+    }
   }
 });
 
@@ -115,6 +121,7 @@ async function onPlay(){
         if(!this.getPlayState()) break;
           playMusic.play();
         chart.data.datasets[0].backgroundColor[getCurrentState()] = 'salmon'; 
+        
         chart.update();
         
         await timer(1000);
@@ -180,24 +187,34 @@ function handleClick(evt)
      var seekTime = (perc/100)*dure;
 
     if(curr_idx < clickedIdx){
+
+        console.log("curr_idx ",curr_idx );
+        console.log("clickedIdx: ", clickedIdx);
+
+       
         while(curr_idx <= clickedIdx){
             chart.data.datasets[0].backgroundColor[curr_idx] = 'salmon'; 
+           console.log("happening")
             curr_idx++;
         }
-        chart.update();   
+         
         playMusic.currentTime= seekTime;
-        playMusic.play();
+          playMusic.play();
+          chart.update();
+ 
         document.getElementById('play-btn').style.visibility="hidden";
      document.getElementById('pause-btn').style.visibility="visible";
     }
     else if(curr_idx > clickedIdx){
+        
         while(curr_idx > clickedIdx){
-            chart.data.datasets[0].backgroundColor[curr_idx] = 'grey';
+            chart.data.datasets[0].backgroundColor[curr_idx] = 'rgb(0, 150, 255)';
             curr_idx--; 
         }
         chart.update();
         playMusic.currentTime= seekTime;
         playMusic.play();
+       
         document.getElementById('play-btn').style.visibility="hidden";
      document.getElementById('pause-btn').style.visibility="visible";
     }
